@@ -33,10 +33,9 @@ class Field {
 
   print() {
     let j = 0;
-    for (j; j < this.field.length-1; j++) {
+    for (j; j < this.field.length; j++) {
       console.log(this.field[j].join(""));
     }
-    return this.field[j].join("");
   }
 
   clear() {
@@ -49,11 +48,11 @@ class Field {
   play() {
     while (!gameOver) {
     this.clear();
-    console.log(this.print());
+    this.print();
     this.move(prompt('Which way? (w, a, s, d) '));
     gameOver = this.testLocation();
     }
-    console.log(this.print());
+    this.print();
   }
 
   move(move) {
@@ -99,6 +98,20 @@ class Field {
       this.field[this.currentY][this.currentX] = currentPos;
     }
     return false;
+  }
+
+  static generateField(rows, columns, holeRatio) {
+    const fieldArray = [];
+    // rows * columns = total cells
+    // holeRatio = total * 0.x
+
+    // use buffer to fill with field characters first
+    // if holes > 0 then random number to insert hole
+    // after field is generated, use random x, y to insert hat, insert charposition at [0][0]
+    
+    // outter for loop to create a row
+
+    // inner for loop to fill row with columns
   }
 };
 
