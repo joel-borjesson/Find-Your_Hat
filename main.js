@@ -5,8 +5,6 @@ const hole = "O";
 const fieldCharacter = "░";
 const pathCharacter = "*";
 const currentPos = "@";
-let move;
-let gameOver = false;
 
 class Field {
   constructor(fieldArr) {
@@ -46,10 +44,18 @@ class Field {
   }
 
   play() {
+    let gameOver = false;
     while (!gameOver) {
     this.clear();
     this.print();
-    this.move(prompt('Which way? (w, a, s, d) '));
+    let answer = prompt('Which way? (w, a, s, d) ');
+    while (answer !== 'w' && answer !== 'a' && answer !== 's' && answer !== 'd') {
+      this.clear();
+      this.print();
+      console.log('Please enter w, a, s, or d');
+      answer = prompt('Which way? (w, a, s, d) ');
+    }
+    this.move(answer);
     gameOver = this.testLocation();
     }
     this.print();
@@ -70,12 +76,14 @@ class Field {
       case 'd':
         this.currentX++;
         break;
+      default:
+        console.log('Please choose w, a, s, or d');
     };
   }
 
   testLocation() {
-    if (this.currentY < 0 || this.currentY > this.field.length-1 ||
-    this.currentX < 0 || this.currentX > this.field.length-1) {
+    if (this.currentY < 0 || this.currentY > fieldRows-1 ||
+    this.currentX < 0 || this.currentX > fieldColumns-1) {
       this.clear();
       console.log('Edge of flat earth found. Welcome to the void.')
       return true;
@@ -102,22 +110,68 @@ class Field {
 
   static generateField(rows, columns, holeRatio) {
     const fieldArray = [];
-    // rows * columns = total cells
-    // holeRatio = total * 0.x
-
-    // use buffer to fill with field characters first
-    // if holes > 0 then random number to insert hole
-    // after field is generated, use random x, y to insert hat, insert charposition at [0][0]
+    let numHoles;
+    let total = rows * columns;
+    switch (holeRatio) {
+      case 'easy':
+        numHoles = total * 0.1;
+        break;
+      case 'med':
+        numHoles = total * 0.25;
+        break;
+      case 'hard':
+        numHoles = total * 0.4;
+        break;
+      default:
+        numHoles = total * 0.25;
+    };
+    for (let i = 0; i < rows; i++) {
+      fieldArray.push(Array(Number(columns)).fill(fieldCharacter));
+    };
+    fieldArray[0][0] = currentPos;
+    // if numHoles > 0 then random number to insert hole
+    while (Math.round(numHoles) > 0) {
+      let column = Math.floor(Math.random()*columns);
+      let row = Math.floor(Math.random()*rows);
+      //console.log(`column: ${column}, row: ${row}`)
+      if (fieldArray[row][column] !== hole && fieldArray[row][column] !== currentPos) {
+        fieldArray[row][column] = hole;
+        numHoles--;
+      }
+    };
+    // use random x, y to insert hat if a hole isn't already there
     
-    // outter for loop to create a row
+    let hatExists = false;
+    while (!hatExists) {
+      let column = Math.floor(Math.random()*columns);
+      let row = Math.floor(Math.random()*rows);
+      if (fieldArray[row][column] !== hole && fieldArray[row][column] !== currentPos) {
+        fieldArray[row][column] = hat;
+        hatExists = true;
+      };
+    };
 
-    // inner for loop to fill row with columns
+    return fieldArray;
   }
 };
 
+// limit rows and columns to 30>x>3
+let fieldRows = prompt('Please input number of rows: ');
+let fieldColumns = prompt('Please input number of columns: ');
+let holeRatio = prompt('Please input difficulty (easy, med, hard): ');
+
+//console.log(`rows: ${fieldRows}, columns: ${fieldColumns}, difficulty: ${holeRatio}`);
+
+const randomField = Field.generateField(fieldRows, fieldColumns, holeRatio);
+//console.log(randomField);
+
+const myField = new Field(randomField);
+
+/*
 const myField = new Field([
   ["@", "░", "O"],
   ["░", "O", "░"],
   ["░", "^", "░"],
 ]);
+*/
 myField.play();
